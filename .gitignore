@@ -1,0 +1,24 @@
+# 生成物与本地环境
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 案件产出与本地材料（严禁提交）
+outputs/
+.patent-skill-research/
+upstream-guides/
+*.local.md
+
+# 附图运行中间结果
+examples/out/
+*_图*.png
+*_图*.svg
+
+# 编辑器 / 系统
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
