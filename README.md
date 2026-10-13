@@ -31,9 +31,11 @@ yixiu-patent/
 │   ├── figures-spec-example.json   # 脱敏示例：可直接跑通的四图规格
 │   └── disclosure-skeleton-example.md  # 结构骨架示例：八节模板与写法要点
 ├── scripts/
-│   └── vendor_upstream.py     # 维护用：按文件清单从上游仓库补拉/校验（urllib + contents API + SHA-1）
+│   ├── vendor_upstream.py     # 维护用：按文件清单从上游仓库补拉/校验（urllib + contents API + SHA-1）
+│   ├── sync_yixiu_skills.py   # 把本仓库 skills/ 安装或更新到本地 Agent 技能目录（单请求 tarball + 自动备份）
+│   └── verify_published_repo.py  # 验收：本地目录与已发布仓库逐文件比对 + 泄漏扫描
 ├── NOTICE.md                  # 文件级上游来源与署名
-├── LICENSE                    # MIT（含上游许可说明）
+├── LICENSE                    # MIT
 ├── PUBLISHING.md              # 发布/更新到 GitHub 的步骤
 └── .gitignore
 ```
@@ -72,6 +74,18 @@ python skills/patent-disclosure/tools/extract_docx_text.py <out.docx> <check.txt
 
 依赖：Python 3.9+；附图输出 PNG 需 `Pillow`（可选 `numpy` 用于像素统计）。
 **不需要** pandoc、LibreOffice、graphviz、inkscape。
+
+## 更新（本仓库 → 本地技能目录）
+
+```bash
+# 首次安装或后续更新：下载 tarball、安装 skills/*、把同名旧技能备份到 .dsh/skills-archive/
+python scripts/sync_yixiu_skills.py --repo <owner>/yixiu-patent --retire <旧技能名>
+
+# 验收：本地目录与已发布仓库逐文件比对（内容 + 泄漏扫描）
+python scripts/verify_published_repo.py <owner>/yixiu-patent <本地目录>
+```
+
+安装结果写入 `.dsh/skills/.yixiu-manifest.json`（仓库、分支、时间、各技能文件数），便于回溯版本。
 
 ## 工作流
 

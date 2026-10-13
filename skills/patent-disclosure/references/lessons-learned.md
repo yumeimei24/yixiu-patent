@@ -25,6 +25,10 @@
 | 2026-10-13 | 案例A迭代：用户改稿对比 | 用户定稿附图说明 4 幅与正文步骤号 S1—S10，而我此前画的图用 S101—S109 且图1 画了分支判断与回边 | 图幅规格只对齐了图名，未对齐编号体系与"主流程线性"的版式惯例 | `patent-figure-spec.md` §2 新增硬规则：节点编号=正文一级步骤号、细化图用二级编号（201…/401…）并在实施方式定义、图1 线性主流程；8 幅图按新规则重绘，引擎校验与 `verify_figures.py` 复核全部通过 |
 | 2026-10-13 | 案例A实施方式重写 | 用户指出具体实施方式"写得不好"——旧稿为方案复述+数据罗列，无参数表、无装置/设备/介质实施例、公式无编号与数值例子 | 技能 draft 流程缺实施方式的骨架与公式细则，只散落在 output-layout-style 的公式顺号一条 | 新增 `references/implementation-writing.md`（功能定位、10 段骨架、附图引用规则"每图至少一次如图N所示"、公式七规则、最优实施例要点、退稿自查）；v3 实施方式按新骨架重写；学习来源已随附 `upstream-guides/`（xstongxue/best-skills patent-write 全套 + cat-xierluo/legal-skills code2patent 全套） |
 
+| 2026-10-13 | 技能发布（GitHub） | 本地 8 个文件被判定"与远端不一致"，一度怀疑内容被改坏 | Windows 上 Python `Path.write_text()` 把 `\n` 翻译成 `\r\n`，而 git 的 `core.autocrlf` 在提交时归一化为 LF，于是字节 SHA-1 不同、内容其实一致 | 用内容探针（关键标记是否存在）而非字节哈希判定版本；写入统一 `newline='\n'`；本技能 `tools/verify_figures.py` 同源思路：先证伪"内容问题"，再归因行尾 |
+| 2026-10-13 | 技能发布（GitHub） | 仓库首页许可显示为 NOASSERTION，没有 MIT 徽标 | `LICENSE` 在标准 MIT 正文后追加了上游署名块，GitHub 的 licensee 无法匹配标准模板 | `LICENSE` 只保留标准 MIT 全文；上游版权与许可说明移到 `NOTICE.md`，并保留各技能目录内的上游 `LICENSE` |
+| 2026-10-13 | 技能发布（GitHub） | 公开仓库的首个提交里出现了个人（学校）邮箱 | 提交作者取自已存在的 `~/.gitconfig`，未在首次发布前检查 | 发布前把 git 身份改为 GitHub 匿名邮箱 `<id>+<login>@users.noreply.github.com`；已发布的可用重发仓库或改历史 + 强推修正 |
+
 ## 补点方法（用户给出部分创新点、需撰写者补齐时）
 
 1. 先区分**表示手段**与**测量方法**：把数据组织成网络/图谱通常只是表示手段，真正可主张的往往是"如何用该表示完成测量"的那一步。
@@ -67,3 +71,5 @@
 - **取上游大文件不要吞进上下文**：jsdelivr 常把请求重定向到 `raw.githubusercontent.com`（web_fetch 不跨域跟随，需改用 API contents 端点）；API 返回的 JSON 里 `content` 是 base64，若结果被 spill 到临时文件，直接用 python 解析该 JSON 并 base64 解码落盘即可，字节数与上游一致；单文件 ≥20KB 时优先派子代理代取，主上下文只收字节数对照表。
 - 随附外部脚本后**必须冒烟运行**（`--help` + 一个最小样例），确认依赖满足（本机有 Pillow/numpy/matplotlib，无 graphviz/inkscape/pandoc）。
 - 引擎会把长标签换行拆成多个 `<text>` 元素，图文核对须**去空白后整串比对**（`tools/verify_figures.py` 已内置）；判断框标签故意不带步骤号，避免编号语义混乱。
+- **发布/同步前先验证，不要凭字节哈希下结论**：跨平台（Windows 写、git 归一化、Linux 取回）时行尾会变，用"关键内容标记是否存在"判定版本是否一致；`scripts/vendor_upstream.py check` 报 differs 时先看 CRLF 计数。
+- GitHub 只对**标准全文**的 `LICENSE` 识别许可证；任何附加说明都会让它变成 NOASSERTION——附加说明放 `NOTICE.md`。

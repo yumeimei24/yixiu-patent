@@ -37,6 +37,9 @@ git push
 - [ ] **许可**：根 `LICENSE` 与两个技能目录下的 `LICENSE` 齐全，`NOTICE.md` 的来源表与实际文件一致；
 - [ ] **无案件材料**：`outputs/`、`.patent-skill-research/`、任何 `.docx` 交底书与真实附图**不得**进入提交（`.gitignore` 已排除，仍建议 `git status` 复核）；
 - [ ] **无凭证**：不含 token、cookie、企业名与联系人信息；
+- [ ] **提交身份**：`git config user.email` 必须是 GitHub 匿名邮箱（`<id>+<login>@users.noreply.github.com`），公开仓库的首次提交会永久暴露该邮箱；
+- [ ] **许可识别**：`LICENSE` 为标准全文（GitHub 才会显示 MIT 徽标）；附加说明放 `NOTICE.md`；
+- [ ] **行尾一致**：Windows 上写入的文件统一 `newline="\n"`，避免提交后被 autocrlf 归一化而产生"假差异"。
 - [ ] **可运行**：`examples/figures-spec-example.json` 能跑通附图引擎与复核脚本（见 README「快速开始」）；
 - [ ] **README 路径**：本机绝对路径已替换为 `${SKILL_DIR}`、`<workspace>` 等占位符。
 
