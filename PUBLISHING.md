@@ -3,6 +3,11 @@
 本目录已按可发布仓库整理完毕（技能、脱敏示例、README/NOTICE/LICENSE/.gitignore）。
 **当前机器未安装 git**（`PATH` 与常见安装路径均无 `git.exe`），因此本仓库以"可直接 push 的目录"形式交付。
 
+> **实际推送通道**（2026-10-14 起验证可用）：本机不装 git 也能更新本仓库——走 REST Git Data API
+> （创建 blob / tree / commit，再更新 `refs/heads/main`），配套脚本在 DSH 的 `github-upload` 技能下
+> （`push_via_api.py` 增量提交、`history_rewrite.py` 重写历史、`verify_published_repo.py` 复验）。
+> 推送身份必须用 GitHub 匿名邮箱，原因见第 4 节最后一条。
+
 ## 1. 安装 git
 
 - Windows：`winget install --id Git.Git -e --source winget`，或从 <https://git-scm.com/download/win> 下载安装；
@@ -33,7 +38,7 @@ git push
 
 ## 4. 发布前检查清单
 
-- [ ] **脱敏**：`grep -rn "harness office\|岗位人工智能暴露度\|新材料产业\|97,117\|12,189" .` 应无命中（除本文件示例外）；
+- [ ] **脱敏**：用本机路径关键词、内部选题名、真实统计数字各扫一遍（`grep -rn "<关键词>" .`），应无命中。**不要把关键词本身写进本文件**——公开仓库里的示例同样构成泄漏；
 - [ ] **许可**：根 `LICENSE` 与两个技能目录下的 `LICENSE` 齐全，`NOTICE.md` 的来源表与实际文件一致；
 - [ ] **无案件材料**：`outputs/`、`.patent-skill-research/`、任何 `.docx` 交底书与真实附图**不得**进入提交（`.gitignore` 已排除，仍建议 `git status` 复核）；
 - [ ] **无凭证**：不含 token、cookie、企业名与联系人信息；

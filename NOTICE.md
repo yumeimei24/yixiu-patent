@@ -23,13 +23,20 @@
 | `references/implementation-writing.md` | 具体实施方式规范：功能定位、10 段骨架、附图引用规则、公式七规则、退稿自查 |
 | `references/output-layout-style.md` | 交付体裁与版面规范（样稿优先、公式顺号、语言质量红线） |
 | `references/lessons-learned.md` | 实战复盘清单（补点方法、测量类客体强化、转述他人框架类写法、读料技巧） |
+| `references/spec-quality-redlines.md` | 说明书质量红线：十类判退缺陷（公式引导句空悬、符号重定义、术语漂移、错字成窝、权利要求用语混入、实施例复制、AI 腔、无源量化数字、背景评述失焦、附图脱节），每类含真实坏例与修法 |
 | `tools/verify_figures.py` | 附图程序化复核（SVG 标签齐全 + PNG 像素统计） |
+| `tools/consistency_scan.py` | 成稿机械扫查（错字、双标点、术语变体、公式空悬、符号重定义、无源数字、段落重复等），draft/upgrade/export 定稿前必跑 |
 
 **本仓库修改过的上游文件**：
 
 | 文件 | 修改内容 |
 |---|---|
-| `SKILL.md` | 增加 DSH 运行适配、draw 模式路由、模板策略第 0 步、检查清单条目、本地新增参考索引；上游版权与版本信息保留 |
+| `SKILL.md` | 增加 DSH 运行适配、draw 模式路由、模板策略第 0 步、检查清单条目（含机械扫查）、本地新增参考索引；上游版权与版本信息保留 |
+| `prompts/draft.md` | 增加 spec-quality-redlines 前置 Read 与定稿前 consistency_scan 必做步骤 |
+| `prompts/upgrade.md` | 前置 Read 补 implementation-writing / output-layout-style / spec-quality-redlines；转换原则补六条硬规则（说明书禁"其特征在于"、实施例禁复制、效果句三段式、数字可溯源、术语一致、背景禁套话） |
+| `prompts/export.md` | 增加导出前机械扫查步骤 |
+| `references/output-layout-style.md` | §4 语言红线扩充：AI 腔高频禁词、背景技术起句限制、效果句三段式、量化数字可溯源、公式引导句紧随公式 |
+| `references/disclosure-checklist.md` | 新增"机械扫查"节（对应 consistency_scan.py 的检查项） |
 | `tools/md_to_docx_min.py` | 增加 `![图注](png)` 嵌图支持（标准库解析 PNG IHDR、生成最小 `w:drawing` 部件与 `word/media`、`word/_rels`） |
 | `tools/extract_pdf_text_min.py` | 修正 pdflatex 输出的十六进制字符串与 Form XObject 正文提取 |
 

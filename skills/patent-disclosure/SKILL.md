@@ -21,7 +21,8 @@ metadata:
 - **本技能自带离线工具（纯标准库，无需联网、无需 python-docx/pandoc）**：
   - `tools/extract_docx_text.py` —— `.docx` → 纯文本（段落与表格保序），用于读取用户 Word 材料；
   - `tools/md_to_docx_min.py` —— `.md` → A4 `.docx`，支持标题层级、居中公式行、首行缩进、带框表格，以及 `**粗体**`、`_{下标}`、`^{上标}` 标记；
-  - `tools/extract_pdf_text_min.py` —— `.pdf` → 纯文本（FlateDecode、对象流、十六进制字符串、`TJ` 数组、ToUnicode CMap）。
+  - `tools/extract_pdf_text_min.py` —— `.pdf` → 纯文本（FlateDecode、对象流、十六进制字符串、`TJ` 数组、ToUnicode CMap）；
+  - `tools/consistency_scan.py` —— 成稿机械扫查（双标点、错字黑名单、叠字衍字、术语变体、英文大小写漂移、公式引导句空悬、孤立标点行、符号重定义、权利要求用语混入、无源量化效果、段落重复、段首复读、附图引用核对）；**draft / upgrade / export 定稿前必跑**。
 - **未随附的脚本（按需补拉）**：`tools/docx_to_md.py`、`tools/cnipa_epub_search.py`、`tools/cnipa_epub_crawler.py`、`tools/cnipa_epub_parse.py`、`tools/iteration_dialog_log.py`、`tools/md_to_docx.py`、`scripts/render_disclosure_docx.py`。原始仓库：`https://github.com/yjmm10/patent-skills`。**通道**：pwsh 的 `Invoke-WebRequest`/`curl`/`pip` 无外网，但 **python/urllib 有出口**；jsdelivr 会 302 到 `raw.githubusercontent.com`（`web_fetch` 不跨域跟随），因此补拉用 API contents 端点落盘：
   ```bash
   python -c "import base64,json,urllib.request; p='tools/cnipa_epub_search.py'; d=json.load(urllib.request.urlopen('https://api.github.com/repos/yjmm10/patent-skills/contents/'+p)); open(p.split('/')[-1],'wb').write(base64.b64decode(d['content']))"
@@ -77,6 +78,7 @@ metadata:
 | PDF 输入（离线） | `python ${SKILL_DIR}/tools/extract_pdf_text_min.py {in.pdf} {out.txt}` |
 | MD → A4 DOCX（离线，无需 python-docx） | `python ${SKILL_DIR}/tools/md_to_docx_min.py {in.md} {out.docx}` |
 | DOCX 回读校验（必做） | `python ${SKILL_DIR}/tools/extract_docx_text.py {out.docx} {check.txt}` |
+| 成稿机械扫查（必做） | `python ${SKILL_DIR}/tools/consistency_scan.py {成稿.md}`；十类缺陷红线见 `references/spec-quality-redlines.md` |
 | 专利附图生成（离线） | `python <paper2patent>/scripts/generate_patent_drawings.py {content.json} -o {outdir} --prefix {案件名} --update-json`（引擎与 JSON 契约见 `prompts/draw_figures.md`；需 Pillow） |
 | 附图程序化复核（离线） | `python ${SKILL_DIR}/tools/verify_figures.py {规格.json} {图目录} {前缀}`（SVG 标签齐全 + PNG 像素统计；构图美学仍需人工目视） |
 | Word 输入 | `python3 ${SKILL_DIR}/tools/docx_to_md.py --input {path}.docx --output {dir}/{name}.md` |
@@ -112,6 +114,8 @@ metadata:
 □ draft/export：已按选定体裁排版；公式顺号，且每个公式后紧随符号定义
 □ draft/export：DOCX 已用 extract_docx_text.py 回读校验（或已说明降级原因）
 □ draft：具体实施方式按 implementation-writing.md 骨架（参数表/逐步细节含二级步骤编号/对照实验/替代实施/装置设备介质闭环），每图至少一次"如图N所示"引用
+□ draft/upgrade/export：已跑 consistency_scan.py，0 个 [ERROR]，[WARN] 逐条确认；报告随稿留档不写入正文
+□ 说明书正文无"其特征在于"与"本专利"；实施例不逐字复制发明内容；量化数字可溯源
 □ draw：每图 validation.passes=true；图内无图号；节点编号与正文步骤号一致；每图在实施方式中至少一次"如图N所示"引用；SVG+PNG 成对交付且 verify_figures.py 零错误
 □ iterate：已 Read iteration_context + merger/correction；新时间戳文件不覆盖旧稿
 □ iterate：已追加 交底书修订对话记录.md；对话含「合并/纠正摘要（留档）」
@@ -129,6 +133,7 @@ metadata:
 - `references/patent-figure-spec.md` —— 专利附图规范：法定黑白线条要求、附图标记规则、绘图引擎输入 JSON 契约、编号与正文一致/图1线性主流程/每图正文引用三条硬规则、图幅清单模板与示例、逐图校验清单。
 - `prompts/draw_figures.md` —— draw 模式分步指令：交底书 → 图幅清单 → 节点/边抽取（只画正文有的）→ 引擎生成与校验 → 目视复核（verify_figures.py 替代）→ 交付与迭代。
 - `references/implementation-writing.md` —— 具体实施方式撰写规范：功能定位（充分公开/支撑权利要求/特征储备库）、10 段骨架、附图引用规则（每图至少一次"如图N所示"）、公式七规则、最优实施例要点与退稿自查。
+- `references/spec-quality-redlines.md` —— 说明书质量红线：十类判退缺陷（公式引导句空悬、符号重定义、术语漂移、错字成窝、权利要求用语混入、实施例复制、AI 腔、无源量化数字、背景评述失焦、附图脱节），每类含真实坏例与修法。
 
 ## 固定免责声明
 

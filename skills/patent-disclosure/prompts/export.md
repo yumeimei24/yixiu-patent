@@ -29,6 +29,16 @@ python3 ${SKILL_DIR}/scripts/render_disclosure_docx.py \
 
 `md_to_docx.py` 默认按 A4 常用边距与标题样式排版。
 
+### 3.5 导出前机械扫查（必做）
+
+```bash
+python ${SKILL_DIR}/tools/consistency_scan.py {源稿}.md
+```
+
+- 有 `[ERROR]`（公式引导句空悬、孤立标点行、错字、双标点、权利要求用语混入说明书）**先修再导出**；
+- `[WARN]` 逐条确认，结果与报告路径在交付说明中提一句（报告不写入正文）；
+- 回读校验（步骤 4 的 `extract_docx_text.py`）与扫查是两件事：前者查 DOCX 是否丢段落/公式/表格，后者查文本本身的质量缺陷，两者都要做。
+
 ### 4. 交付清单
 
 告知用户：

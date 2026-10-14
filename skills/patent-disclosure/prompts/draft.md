@@ -8,7 +8,8 @@
 4. **`Read`** `references/desensitization.md`（成稿须脱敏）
 5. **`Read`** `references/delivery-naming.md`（落盘命名）
 6. **`Read`** `references/disclosure-checklist.md`（完稿前内部自检）
-7. 确认模板：
+7. **`Read`** `references/spec-quality-redlines.md`（十类判退缺陷：公式空悬、术语漂移、错字、AI 腔、无源数字等）
+8. 确认模板：
    - 用户提供模板 → 按其结构
    - 未提供且用户同意 → **Read** `assets/default-disclosure-template.md`
 
@@ -36,6 +37,16 @@
 2. 文件名：`{案件名}_{YYYYMMDDHHmmss}.md` 与同名 `.docx`
 3. 写入 `./outputs/{案件标识}/` 或用户指定目录
 4. 调用 `scripts/render_disclosure_docx.py` 生成 Word
+
+## 定稿前机械扫查（必做）
+
+```bash
+python ${SKILL_DIR}/tools/consistency_scan.py {案件名}_{时间戳}.md
+```
+
+- 0 个 `[ERROR]` 才可交付；`[WARN]` 逐条确认（术语变体、符号重定义、无源数字必须逐条处置）。
+- 报告随稿留档（同目录 `{案件名}_{时间戳}.scan.txt`），**不写入交付正文**。
+- 误报说明：从 `.docx` 提取的文本若原稿用 Word 公式对象（OMML），公式会整体丢失，"公式引导句空悬"可能是提取假阳性——但同样说明源稿不该依赖公式对象，应以 `$$…$$` 书写。
 
 ## 交付交互（必做）
 

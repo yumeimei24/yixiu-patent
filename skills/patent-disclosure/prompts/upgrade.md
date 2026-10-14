@@ -7,6 +7,9 @@
 2. **`Read`** `prompts/standards_lookup.md` 并 **WebSearch**「权利要求书 撰写规范 专利审查指南」
 3. **`Read`** `references/claims-rules.md`
 4. **`Read`** `references/patent-law-basics.md`
+5. **`Read`** `references/implementation-writing.md`（具体实施方式按其 10 段骨架写）
+6. **`Read`** `references/output-layout-style.md`（公式顺号、语言红线）
+7. **`Read`** `references/spec-quality-redlines.md`（十类判退缺陷）
 
 ## 目标
 
@@ -25,6 +28,12 @@
 - 权利要求：**禁词**（等、大约、优选、可以、比如、不限于…）、**仅末尾一个句号**
 - 从权引用基础必须成立
 - 具体实施方式：步骤化专利语言，非论文腔；每关键步骤说明是什么、解决什么、如何操作、达到什么效果
+- **说明书全文（含发明内容与实施方式）禁用"其特征在于"与"本专利"**——这些只属于权利要求书
+- **实施例不得复制发明内容**：实施方式相对发明内容必须新增参数取值、数值例子、对照数据、步骤细化（二级编号）中的至少两项
+- **效果句三段式**：因（技术特征）→ 果（可测效果）→ 据（数字/机理）；无数据写机理，禁"显著/大幅/有效"
+- **量化数字必须可溯源**：无源数字（如"识别 95% 以上""提前 200ms"）改为机理描述或标【待补充】
+- **术语与符号全文一致**：动笔前建模块名清单与符号表，附图说明、附图节点与正文同名同号
+- 背景技术禁"随着…的发展"起句，禁"研究表明"（无引证）
 
 ## 输出
 
@@ -40,7 +49,8 @@
 
 ## 内部质检
 
-**Read** `references/disclosure-checklist.md` 中申请书相关项，后台修订后再交付。
+**Read** `references/disclosure-checklist.md` 中申请书相关项，后台修订后再交付；
+**机械扫查必跑**：`python tools/consistency_scan.py <成稿.md>`，0 个 [ERROR] 且 [WARN] 逐条确认后才交付（报告随稿留档，不写入正文）。
 
 ## 交付
 
