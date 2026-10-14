@@ -23,7 +23,10 @@ metadata:
   - `tools/md_to_docx_min.py` —— `.md` → A4 `.docx`，支持标题层级、居中公式行、首行缩进、带框表格，以及 `**粗体**`、`_{下标}`、`^{上标}` 标记；
   - `tools/extract_pdf_text_min.py` —— `.pdf` → 纯文本（FlateDecode、对象流、十六进制字符串、`TJ` 数组、ToUnicode CMap）；
   - `tools/consistency_scan.py` —— 成稿机械扫查（双标点、错字黑名单、叠字衍字、术语变体、英文大小写漂移、公式引导句空悬、孤立标点行、符号重定义、权利要求用语混入、无源量化效果、段落重复、段首复读、附图引用核对）；**draft / upgrade / export 定稿前必跑**。
-- **未随附的脚本（按需补拉）**：`tools/docx_to_md.py`、`tools/cnipa_epub_search.py`、`tools/cnipa_epub_crawler.py`、`tools/cnipa_epub_parse.py`、`tools/iteration_dialog_log.py`、`tools/md_to_docx.py`、`scripts/render_disclosure_docx.py`。原始仓库：`https://github.com/yjmm10/patent-skills`。**通道**：pwsh 的 `Invoke-WebRequest`/`curl`/`pip` 无外网，但 **python/urllib 有出口**；jsdelivr 会 302 到 `raw.githubusercontent.com`（`web_fetch` 不跨域跟随），因此补拉用 API contents 端点落盘：
+- **国知局查新（已随附并验证可用，2026-10-14）**：`tools/cnipa_epub_search.py` + `tools/cnipa_epub_crawler.py` + `tools/cnipa_epub_parse.py`；依赖 `playwright`（本机已装 1.64.0 + chromium）。用法 `python tools/cnipa_epub_search.py 词1`（空白拆多词、逐词检索后按公开号合并）。
+  - **中文输出务必落盘再看**：Windows 控制台为 GBK，直接打印结果 JSON 会被截断甚至抛 `UnicodeEncodeError`；多词批量检索请用 `tools/cnipa_batch.py`（输出 `cnipa_summary.txt` 与 `cnipa_hits.json`，UTF-8），单次检索的重定向到文件后用 `read` 工具读取。
+  - **检索式要短**：公布站首页对多词按"同时包含"理解，词多且专时极易 0 条，建议每次单个词或极短短语。
+- **未随附的脚本（按需补拉）**：`tools/docx_to_md.py`、`tools/iteration_dialog_log.py`、`tools/md_to_docx.py`、`scripts/render_disclosure_docx.py`。原始仓库：`https://github.com/yjmm10/patent-skills`。**通道**：python/urllib 有出口，补拉用 API contents 端点落盘：
   ```bash
   python -c "import base64,json,urllib.request; p='tools/cnipa_epub_search.py'; d=json.load(urllib.request.urlopen('https://api.github.com/repos/yjmm10/patent-skills/contents/'+p)); open(p.split('/')[-1],'wb').write(base64.b64decode(d['content']))"
   ```
@@ -31,7 +34,7 @@ metadata:
 - **降级规则**（脚本或依赖缺失时）：
   - Word 输入 → 用 `tools/extract_docx_text.py` 解析 `.docx`；
   - PDF 输入 → 先用 `tools/extract_pdf_text_min.py` 提取正文（支持十六进制字符串与 `TJ` 数组；若正文在 Form XObject 中亦会被扫描）；提取结果若含控制字符，先清理再用 `read`；确认无文字层（纯扫描件）时才请用户粘贴正文，或仅按标题引证并标「待核实」；
-  - 国知局查新 → 用 `web_search` + Google Patents（`patents.google.com`）替代 `cnipa_epub_search.py`；
+  - 国知局查新 → 用 `web_search` + Google Patents（`patents.google.com`）替代 `cnipa_epub_search.py`（Playwright/chromium 缺失时）；
   - DOCX 输出 → 用 `tools/md_to_docx_min.py` 生成，生成后用 `extract_docx_text.py` 回读校验；
   - 修订对话记录 → 用 `edit`/`write` 直接追加 `交底书修订对话记录.md`（结构同脚本输出）。
 - **产出目录**：默认工作区 `./outputs/{案件标识}/`。
@@ -82,12 +85,12 @@ metadata:
 | 专利附图生成（离线） | `python <paper2patent>/scripts/generate_patent_drawings.py {content.json} -o {outdir} --prefix {案件名} --update-json`（引擎与 JSON 契约见 `prompts/draw_figures.md`；需 Pillow） |
 | 附图程序化复核（离线） | `python ${SKILL_DIR}/tools/verify_figures.py {规格.json} {图目录} {前缀}`（SVG 标签齐全 + PNG 像素统计；构图美学仍需人工目视） |
 | Word 输入 | `python3 ${SKILL_DIR}/tools/docx_to_md.py --input {path}.docx --output {dir}/{name}.md` |
-| 国知局查新（优先） | `python3 ${SKILL_DIR}/tools/cnipa_epub_search.py {词块}`；见 `prompts/search.md` |
+| 国知局查新（优先） | `python ${SKILL_DIR}/tools/cnipa_epub_search.py {词块}`（单次单词；结果落盘后用 `read` 读，避免 GBK 控制台截断）；见 `prompts/search.md` |
 | MD → A4 DOCX | `python3 ${SKILL_DIR}/scripts/render_disclosure_docx.py --input {md} --output {docx}` |
 | 迭代修订留痕 | `python3 ${SKILL_DIR}/tools/iteration_dialog_log.py --case-dir {dir} --kind merge\|correct ...` |
 | 查新降级 | 工具不可用或 0 结果时用 **WebSearch** + Google Patents |
 
-**可选依赖**：`pip install -r requirements.txt`（DOCX）；查新另装 `pip install -r tools/requirements-cnipa.txt && python -m playwright install chromium`。未安装时按上表降级，并在对话中说明。
+**可选依赖**：`pip install -r requirements.txt`（DOCX）；查新另装 `pip install -r tools/requirements-cnipa.txt && python -m playwright install chromium`（本机 2026-10-14 已装好并跑通检索）。未安装时按上表降级，并在对话中说明。
 
 ---
 
@@ -95,10 +98,10 @@ metadata:
 
 撰写交底书前（**draft** / **upgrade** 前段）：
 
-0. **先定体裁**：用户提供的样稿（团队既往专利初稿、已受理申请文本、代理所回稿）＞ 机构交底书模板 ＞ 内置通用模板。提供样稿且要求"按其排版"时，复刻其章节与版面体裁，但**语言质量不得低于样稿**；详见 `references/output-layout-style.md`。
+0. **先定体裁**：用户提供的样稿（团队既往专利初稿、已受理申请文本、代理所回稿）＞ 机构交底书模板 ＞ 内置模板。提供样稿且要求"按其排版"时，复刻其章节与版面体裁，但**语言质量不得低于样稿**；详见 `references/output-layout-style.md`。
 1. 询问用户是否提供机构/个人交底书模板或参考文档。
-2. **未提供**则询问是否同意使用内置通用模板；同意后 **`Read`** `assets/default-disclosure-template.md`。
-3. 用户模板与默认模板冲突时，**以用户模板为准**。
+2. **未提供**则询问是否同意使用内置模板；同意后 **`Read`** `assets/default-disclosure-template.md`。内置模板为**机构交底书九段【】式**：【发明名称】【所属技术领域】【背景技术介绍】【解决的技术问题】【详细技术方案】【技术效果】【相关附图】【具体实施方式】【交底书附图】；背景技术按"需求 → 路线归纳 → 在先专利 → 其一…其N 不足"四段叙事写，技术效果与不足逐点对应。
+3. 用户模板与默认模板冲突时，**以用户模板为准**；九段式正文不含"技术关键点/欲保护点"节，需要时另存 `撰写说明_权利要求布局.md`。
 
 ---
 
@@ -108,7 +111,8 @@ metadata:
 □ 已 Read regulatory-standards.md 并按 standards_lookup.md 完成必要 WebSearch
 □ 已识别正确模式并 Read 对应 prompts/
 □ convert：材料缺口已追问补齐，或已标注假设与待补充项
-□ search：查新结论已写入交底书 1.1 / 区别论述（含可核验 URL）
+□ search：查新结论已写入交底书 1.1 / 区别论述（含可核验 URL；CNIPA 检索结果给公开号并写出与本发明的作用对象差异）
+□ draft：正文体裁已按选定体裁复核（九段【】式：背景四段叙事、不足"其一…其N"、技术问题"第一…第N"逐点对应、效果"其一…其N"带数据、相关附图每图一行、文末【交底书附图】插图）
 □ draft：三要素闭环清晰；已按 references/desensitization.md 脱敏成稿
 □ draft/export：命名符合 references/delivery-naming.md；同时交付 .md + .docx
 □ draft/export：已按选定体裁排版；公式顺号，且每个公式后紧随符号定义
