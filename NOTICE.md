@@ -59,6 +59,7 @@
 | 文件 | 修改内容 |
 |---|---|
 | `SKILL.md` | 增加 DSH 运行适配节（工具名映射、离线工具、补拉通道、降级规则、与 `patent-disclosure` 的 draw 模式衔接），并记录冒烟运行结论（本机无 LibreOffice，PDF 导出步骤不可用时应降级） |
+| `references/quality-checklist.md` | 新增 §A2「文本层缺陷」：指向 `patent-disclosure` 的 `tools/consistency_scan.py` 与 `references/spec-quality-redlines.md`，补齐上游 checker 未覆盖的成稿文本缺陷（公式空悬、错字、术语漂移、权利要求用语混入、无源数字、段落复制、附图引用不符） |
 
 其余文件保持上游原样。**署名与许可要求**：再分发或以本仓库为基础发布衍生作品时，请保留
 `skills/paper2patent/LICENSE` 与 `skills/patent-disclosure/LICENSE` 中的完整版权与许可声明。

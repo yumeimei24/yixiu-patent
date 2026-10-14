@@ -8,6 +8,18 @@ Covers: claim numbering; one final period; uncertain words; references to the de
 
 Zero errors is required. A warning is acceptable only when you can say why it is a false alarm.
 
+## A2. Text-level defects (sibling skill)
+
+`check_patent_draft.py` covers claims and form. It does not catch defects inside the prose, which is where real drafts fail review. Run the sibling skill's scanner on the finished Chinese text:
+
+```bash
+python ../patent-disclosure/tools/consistency_scan.py <说明书.md>
+```
+
+It reports two levels: `[ERROR]` (must fix) and `[WARN]` (confirm one by one). What it catches, with real examples of each: formula lead-in sentences with no formula after them; stray punctuation-only lines; typos (`长时续`→`长时序`, `涂零`→`除零`, `ReLu`→`ReLU`); the same module under several names; English casing drift (`TimeSformer`/`Timesformer`); `其特征在于` inside the description (claim language only); unsourced quantitative effects ("identifies over 95% of…"); paragraphs copied verbatim from 发明内容 into 具体实施方式; 附图说明 vs. in-text figure references mismatched.
+
+Rule set and the reasoning behind each: `../patent-disclosure/references/spec-quality-redlines.md`.
+
 ## B. Fidelity audit (claim by claim)
 
 For every claim feature, point to the paper location in `support_map`. Then check:
