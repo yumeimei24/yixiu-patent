@@ -81,4 +81,5 @@ python <skill>/tools/extract_docx_text.py <out.docx> <check.txt> # 回读校验
 - 样稿中的语病、公式串行、重复句一律**不继承**。
 
 > 十类高频缺陷（含真实坏例与修法）见 `references/spec-quality-redlines.md`；
-> 定稿前机械扫查：`python tools/consistency_scan.py <成稿.md>`（双标点、错字、术语漂移、公式空悬、无源数字等，纯标准库）。
+> 防御性写作红线（六种声音、模板壳改写、必须保留清单）见 `references/anti-defensive-writing.md`；
+> 定稿前机械扫查：`python tools/consistency_scan.py <成稿.md>`（双标点、错字、术语漂移、公式空悬、无源数字、防御性表达等，纯标准库）。

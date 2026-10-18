@@ -1,10 +1,11 @@
 ---
 name: patent-disclosure
-description: "中国发明专利全流程助手：创意可专利性审核（专利法/审查指南约束）、论文转专利、技术交底书撰写与迭代、联网核验国知局撰写规范、国知局查新、A4 DOCX、完整申请书。用户提到专利、交底书、可专利性、专利撰写规范、论文转专利、查新、权利要求时均应使用本技能。"
-whenToUse: 用户提供创意/论文/技术材料，要求评估可专利性、撰写或迭代技术交底书、查新、导出 A4 文档、或生成完整发明专利申请书时。
+description: "中国发明专利全流程助手：创意可专利性审核（专利法/审查指南约束）、论文转专利、技术交底书撰写与迭代、反防御性写作通扫、联网核验国知局撰写规范、国知局查新、附图随稿生成、A4 DOCX、完整申请书。用户提到专利、交底书、可专利性、专利撰写规范、论文转专利、查新、权利要求、防御性写作、写得太怂/啰嗦/有AI味时均应使用本技能。"
+whenToUse: 用户提供创意/论文/技术材料，要求评估可专利性、撰写或迭代技术交底书、查新、生成附图、导出 A4 文档、或生成完整发明专利申请书时。
 user-invocable: true
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
+  changelog: "1.1.0（2026-10-18）：新增 references/anti-defensive-writing.md（防御性写作红线）与 consistency_scan「防御性表达」扫查；交底书文头取消「案件名称/技术联系人/专利类型」三行；draw（附图生成）并入默认链路（draft 后必做）。"
   source: "https://github.com/yjmm10/patent-skills (MIT, vendored 2026-08)"
   note: "上游文件之上增加了 DSH 运行适配、draw 模式、附图与具体实施方式规范；文件级来源见 NOTICE.md。本目录为 yixiu-patent 脱敏发布版。"
 ---
@@ -56,12 +57,14 @@ metadata:
 | **search** | `prompts/search.md` | 查新、现有技术对比、重复风险初判 |
 | **standards** | `prompts/standards_lookup.md` + `references/regulatory-standards.md` | 联网核验专利法律与撰写规范（review/draft/upgrade 前置） |
 | **draft** | `prompts/draft.md` | 撰写/重写技术交底书 |
-| **draw** | `prompts/draw_figures.md` + `references/patent-figure-spec.md` | 绘制专利附图/技术路线图（流程图、框图，黑白线条 SVG+PNG） |
+| **draw** | `prompts/draw_figures.md` + `references/patent-figure-spec.md` | 绘制专利附图/技术路线图（流程图、框图，黑白线条 SVG+PNG）；**默认随 draft 执行** |
 | **iterate** | `prompts/iterate.md` + `iteration_context.md` + `merger.md` / `correction_handler.md` | 对已有交底书问答、合并、纠正、修订留痕 |
 | **export** | `prompts/export.md` | A4 排版，输出 `.md` + `.docx` |
 | **upgrade** | `prompts/upgrade.md` | 交底书定稿后生成完整发明专利申请书 |
 
-**默认链路**（用户给论文/技术材料且未指定子任务）：**规范查询** → `convert` → `search` → `draft` → 用户确认 → `export`；用户要求时再 `upgrade`。
+**默认链路**（用户给论文/技术材料且未指定子任务）：**规范查询** → `convert` → `search` → `draft` → `draw` → 用户确认 → `export`；用户要求时再 `upgrade`。
+
+> **draw 为默认必做**（2026-10-18 用户约定：以后每回生成专利都一并生成图）：交底书定稿后立即按 `prompts/draw_figures.md` 生成附图并插入【交底书附图】，再渲染 DOCX；用户明确说"先不要图"时才跳过并在修订记录注明。
 
 **规范约束（全流程）**：凡 **review / convert / draft / upgrade** 须先 **`Read`** `references/regulatory-standards.md`，再按 `prompts/standards_lookup.md` **WebSearch** 核验领域与最新国知局要求；输出不得违反该规范基线。
 
@@ -114,13 +117,15 @@ metadata:
 □ search：查新结论已写入交底书 1.1 / 区别论述（含可核验 URL；CNIPA 检索结果给公开号并写出与本发明的作用对象差异）
 □ draft：正文体裁已按选定体裁复核（九段【】式：背景四段叙事、不足"其一…其N"、技术问题"第一…第N"逐点对应、效果"其一…其N"带数据、相关附图每图一行、文末【交底书附图】插图）
 □ draft：三要素闭环清晰；已按 references/desensitization.md 脱敏成稿
+□ draft：已按 references/anti-defensive-writing.md 通扫六种声音与模板壳；效果段只含支持主张的对照数据；无过程流水账/自我批评/承诺腔
+□ draft：文头无「案件名称/技术联系人/专利类型」三行元信息，正文以【发明名称】起首
+□ draw：已随 draft 执行；每图 validation.passes=true；图内无图号；节点编号与正文步骤号一致；每图在实施方式中至少一次"如图N所示"引用；SVG+PNG 成对交付且 verify_figures.py 零错误；PNG 已插入【交底书附图】
 □ draft/export：命名符合 references/delivery-naming.md；同时交付 .md + .docx
 □ draft/export：已按选定体裁排版；公式顺号，且每个公式后紧随符号定义
 □ draft/export：DOCX 已用 extract_docx_text.py 回读校验（或已说明降级原因）
 □ draft：具体实施方式按 implementation-writing.md 骨架（参数表/逐步细节含二级步骤编号/对照实验/替代实施/装置设备介质闭环），每图至少一次"如图N所示"引用
 □ draft/upgrade/export：已跑 consistency_scan.py，0 个 [ERROR]，[WARN] 逐条确认；报告随稿留档不写入正文
 □ 说明书正文无"其特征在于"与"本专利"；实施例不逐字复制发明内容；量化数字可溯源
-□ draw：每图 validation.passes=true；图内无图号；节点编号与正文步骤号一致；每图在实施方式中至少一次"如图N所示"引用；SVG+PNG 成对交付且 verify_figures.py 零错误
 □ iterate：已 Read iteration_context + merger/correction；新时间戳文件不覆盖旧稿
 □ iterate：已追加 交底书修订对话记录.md；对话含「合并/纠正摘要（留档）」
 □ export：已交付 .md + .docx；文件名含案件名与时间戳
@@ -132,6 +137,7 @@ metadata:
 
 ## 本地新增参考（vendoring 与实战复盘补充）
 
+- `references/anti-defensive-writing.md` —— **防御性写作红线**（2026-10-18 新增）：交底书是技术主张书不是自我审查报告；六种声音（审计/防御/自我批评/评论/开发者/承诺）识别与修法、高频模板壳正面改写表、必须保留清单、八问自查；`consistency_scan.py` 已内置「防御性表达」扫查项。规则吸收自 GitHub 公开 skill（Adkid-Zephyr/anti-defensive-writing-Skill、Boom5426/Nature-Paper-Skills、Smoothsailing0/anti-defensive-writing-skill，MIT/公开演示版），已按专利场景校准。
 - `references/output-layout-style.md` —— 输出体裁与版面规范：体裁优先级（样稿 ＞ 机构模板 ＞ 内置模板）、机构交底书式与申请书式的对照、公式顺号与符号定义紧随、Word 离线生成与回读校验、语言质量红线。
 - `references/lessons-learned.md` —— 实战复盘与踩坑清单（每完成一案追加）：含"用户只给部分创新点时的补点方法"、"测量/指标构建类发明的客体强化"、"转述他人框架类案件的写法"与读料小技巧。
 - `references/patent-figure-spec.md` —— 专利附图规范：法定黑白线条要求、附图标记规则、绘图引擎输入 JSON 契约、编号与正文一致/图1线性主流程/每图正文引用三条硬规则、图幅清单模板与示例、逐图校验清单。
